@@ -186,4 +186,4 @@ Without a config, the footer just shows the generator line — no branding anywh
 
 Single-user commercial license. You may use this skill on unlimited client projects. You may not redistribute, resell, or publish the scripts.
 
-© 2026 Marcel Gagné. All rights reserved.
+© 2026 Marcel Gelinas. All rights reserved.
