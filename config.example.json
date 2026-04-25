@@ -1,0 +1,7 @@
+{
+  "_comment": "Optional white-label config for laravel-audit. Copy this file to config.json (same directory) or to ~/.config/laravel-audit/config.json. Leave any field blank or remove it to omit.",
+
+  "brand_name": "Your Name or Agency",
+  "brand_url":  "https://yourdomain.com",
+  "footer_cta": "Want a human-reviewed audit with custom fixes? Book a call."
+}

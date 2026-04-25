@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+// laravel-audit — Composer-installed CLI shim.
+// Delegates to scripts/audit.php, which reads $argv directly and calls exit(main($argv)).
+// The shim exists so `composer require --dev mjgapp/laravel-audit` exposes `vendor/bin/laravel-audit`.
+
+$scriptDir = __DIR__ . '/../scripts';
+$audit = $scriptDir . '/audit.php';
+
+if (!is_file($audit)) {
+    fwrite(STDERR, "laravel-audit: cannot locate scanner at {$audit}\n");
+    exit(1);
+}
+
+require $audit;

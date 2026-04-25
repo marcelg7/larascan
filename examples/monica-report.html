@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Laravel Audit — monica</title>
+<style>
+  @page { margin: 20mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; padding: 32px; max-width: 900px; margin-inline: auto; line-height: 1.5; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  h2 { margin: 32px 0 12px; font-size: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+  .sub { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+  .score-card { display: flex; gap: 24px; align-items: stretch; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .score-num { font-size: 72px; font-weight: 800; line-height: 1; color: #a16207; }
+  .score-grade { font-size: 36px; font-weight: 700; color: #a16207; margin-top: 4px; }
+  .score-meta { flex: 1; font-size: 14px; color: #334155; }
+  .score-meta div { margin-bottom: 4px; }
+  .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  .count-pill { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; text-align: center; }
+  .count-pill .n { font-size: 20px; font-weight: 700; }
+  .count-pill .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+  .top-actions { margin-top: 24px; padding: 16px 18px; border-radius: 10px; background: #fef3c7; border: 1px solid #fde68a; }
+  .top-actions h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #78350f; }
+  .top-actions ol { margin: 0; padding-left: 22px; color: #451a03; }
+  .top-actions li { margin-bottom: 4px; font-size: 14px; }
+  .top-actions .loc { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11px; color: #78350f; background: rgba(120, 53, 15, 0.08); padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
+  .finding { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; page-break-inside: avoid; }
+  .finding-head { display: flex; gap: 12px; align-items: baseline; margin-bottom: 8px; flex-wrap: wrap; }
+  .sev-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; color: white; }
+  .cat-chip { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+  .finding-title { font-size: 16px; font-weight: 600; flex: 1; }
+  .rule-id { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11px; color: #64748b; }
+  .finding-loc { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: #334155; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+  .finding-detail { font-size: 14px; color: #334155; margin: 8px 0; }
+  .finding-fix { font-size: 14px; background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+  .finding-fix strong { color: #15803d; }
+  .summary { display: flex; gap: 16px; font-size: 13px; color: #64748b; margin-top: 8px; }
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  footer .generator { flex: 1; }
+  footer .brand { text-align: right; color: #334155; }
+  footer .brand-name { font-weight: 600; color: #0f172a; display: block; }
+  footer .brand a { color: #0ea5e9; text-decoration: none; }
+  footer .cta { margin-top: 4px; font-size: 11px; }
+  .empty { padding: 32px; text-align: center; color: #64748b; background: #f0fdf4; border-radius: 10px; }
+</style>
+</head>
+<body>
+  <h1>Laravel Health Report</h1>
+  <div class="sub">monica &middot; scanned 2026-04-23T20:25:06+00:00</div>
+
+  <section class="score-card">
+    <div>
+      <div class="score-num">62</div>
+      <div class="score-grade">Grade C</div>
+    </div>
+    <div class="score-meta">
+      <div><strong>1656</strong> files scanned (1650 PHP, 6 Blade)</div>
+      <div><strong>22</strong> rules evaluated</div>
+      <div><strong>16</strong> findings</div>
+      <div class="counts">
+        <div class="count-pill"><div class="n" style="color:#b91c1c">0</div><div class="label">Critical</div></div>
+        <div class="count-pill"><div class="n" style="color:#c2410c">9</div><div class="label">High</div></div>
+        <div class="count-pill"><div class="n" style="color:#a16207">2</div><div class="label">Medium</div></div>
+        <div class="count-pill"><div class="n" style="color:#475569">5</div><div class="label">Low</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="top-actions">
+    <h3>Top priority fixes</h3>
+    <ol>
+      <li>
+        <strong>Potential N+1: DB call inside foreach</strong>
+        <span class="loc">app/Domains/Settings/ManageNotificationChannels/Services/ScheduleAllContactRemindersForNotificationChannel.php:94</span>
+        &nbsp;— Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.      </li>
+      <li>
+        <strong>Potential N+1: DB call inside foreach</strong>
+        <span class="loc">app/Domains/Settings/ManageUsers/Services/DestroyUser.php:85</span>
+        &nbsp;— Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.      </li>
+      <li>
+        <strong>Potential N+1: DB call inside foreach</strong>
+        <span class="loc">app/Domains/Contact/ManageReminders/Jobs/ProcessScheduledContactReminders.php:43</span>
+        &nbsp;— Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.      </li>
+    </ol>
+  </div>
+
+  <h2>Findings</h2>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Settings/ManageNotificationChannels/Services/ScheduleAllContactRemindersForNotificationChannel.php:94</div>
+    <div class="finding-detail">A database call (`DB::table(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Settings/ManageUsers/Services/DestroyUser.php:85</div>
+    <div class="finding-detail">A database call (`-&gt;firstOrFail(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Contact/ManageReminders/Jobs/ProcessScheduledContactReminders.php:43</div>
+    <div class="finding-detail">A database call (`::findOrFail(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Contact/ManageRelationships/Web/ViewHelpers/ModuleRelationshipViewHelper.php:30</div>
+    <div class="finding-detail">A database call (`DB::table(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Contact/ManageRelationships/Web/ViewHelpers/ModuleFamilySummaryViewHelper.php:51</div>
+    <div class="finding-detail">A database call (`DB::table(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Vault/ManageJournals/Services/CreatePost.php:102</div>
+    <div class="finding-detail">A database call (`::create(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Vault/Search/Web/ViewHelpers/VaultMostConsultedViewHelper.php:26</div>
+    <div class="finding-detail">A database call (`::find(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Domains/Vault/ManageVault/Web/ViewHelpers/VaultReminderIndexViewHelper.php:58</div>
+    <div class="finding-detail">A database call (`::where(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#c2410c">high</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Potential N+1: DB call inside foreach</div>
+      <div class="rule-id">PERF-001</div>
+    </div>
+    <div class="finding-loc">app/Console/Commands/TestReminders.php:48</div>
+    <div class="finding-detail">A database call (`::findOrFail(`) runs on every iteration of a foreach, producing one query per row.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Collect the IDs and run one query before the loop, or eager-load the relation with Model::with(&#039;relation&#039;) so no per-item queries are needed.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#a16207">medium</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Synchronous Mail send blocks the request</div>
+      <div class="rule-id">PERF-003</div>
+    </div>
+    <div class="finding-loc">app/Domains/Settings/ManageNotificationChannels/Jobs/SendVerificationEmailChannel.php:48</div>
+    <div class="finding-detail">Mail::send without -&gt;queue() runs SMTP in-process, adding seconds to user-facing requests.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Use Mail::to($user)-&gt;queue(new YourMailable()) with a queued Mailable (implements ShouldQueue).</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#a16207">medium</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Synchronous Mail send blocks the request</div>
+      <div class="rule-id">PERF-003</div>
+    </div>
+    <div class="finding-loc">app/Domains/Settings/ManageNotificationChannels/Services/SendTestEmail.php:69</div>
+    <div class="finding-detail">Mail::send without -&gt;queue() runs SMTP in-process, adding seconds to user-facing requests.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Use Mail::to($user)-&gt;queue(new YourMailable()) with a queued Mailable (implements ShouldQueue).</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#475569">low</span>
+      <span class="cat-chip">Performance</span>
+      <div class="finding-title">Model::all() loads every row into memory</div>
+      <div class="rule-id">PERF-004</div>
+    </div>
+    <div class="finding-loc">app/Console/Commands/Local/SetupDummyAccount.php:158</div>
+    <div class="finding-detail">Model::all() fetches every row at once. Fine in seeders and small-table admin views; dangerous in request handlers once the table grows.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Use -&gt;paginate() for listings, -&gt;cursor() for iteration, or an explicit -&gt;where()-&gt;limit()-&gt;get() when you know what you need.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#475569">low</span>
+      <span class="cat-chip">AI-slop</span>
+      <div class="finding-title">Multiple stub functions with empty returns</div>
+      <div class="rule-id">SLOP-002</div>
+    </div>
+    <div class="finding-loc">app/Domains/Contact/Dav/Web/Backend/CardDAV/CardDAVBackend.php:506</div>
+    <div class="finding-detail">3 functions only `return null/[]/true`. Typical of AI scaffolds where the intent was never filled in.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Implement the logic, remove the stubs, or mark the class abstract if stubs represent a contract.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#475569">low</span>
+      <span class="cat-chip">AI-slop</span>
+      <div class="finding-title">Multiple stub functions with empty returns</div>
+      <div class="rule-id">SLOP-002</div>
+    </div>
+    <div class="finding-loc">app/Policies/VaultPolicy.php:14</div>
+    <div class="finding-detail">2 functions only `return null/[]/true`. Typical of AI scaffolds where the intent was never filled in.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Implement the logic, remove the stubs, or mark the class abstract if stubs represent a contract.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#475569">low</span>
+      <span class="cat-chip">AI-slop</span>
+      <div class="finding-title">Multiple stub functions with empty returns</div>
+      <div class="rule-id">SLOP-002</div>
+    </div>
+    <div class="finding-loc">app/Services/BaseService.php:72</div>
+    <div class="finding-detail">2 functions only `return null/[]/true`. Typical of AI scaffolds where the intent was never filled in.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Implement the logic, remove the stubs, or mark the class abstract if stubs represent a contract.</div>
+  </article>
+  <article class="finding">
+    <div class="finding-head">
+      <span class="sev-badge" style="background:#475569">low</span>
+      <span class="cat-chip">AI-slop</span>
+      <div class="finding-title">PHP class in app/ has no namespace</div>
+      <div class="rule-id">SLOP-003</div>
+    </div>
+    <div class="finding-loc">app/Helpers/helpers.php</div>
+    <div class="finding-detail">Laravel&#039;s PSR-4 autoload needs a namespace matching the folder. A class without a namespace won&#039;t autoload and usually signals hand-copied or AI-generated code that bypassed the framework convention.</div>
+    <div class="finding-fix"><strong>Fix:</strong> Add `namespace App\...;` at the top of the file, matching its folder under app/.</div>
+  </article>
+
+  <footer>
+    <div class="generator">
+      Generated by laravel-audit v0.2 &middot; automated scan, not a substitute for a human code review.
+    </div>
+  </footer>
+</body>
+</html>

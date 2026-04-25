@@ -1,0 +1,12 @@
+{
+    "name": "mjgapp/laravel-audit",
+    "description": "Dependency-free Laravel static analysis scanner with auto-fix, baseline, and SARIF output.",
+    "type": "library",
+    "license": "Proprietary",
+    "require": {
+        "php": "^8.1"
+    },
+    "bin": [
+        "bin/laravel-audit"
+    ]
+}
