@@ -2,7 +2,7 @@
     "name": "mjgapp/larascan",
     "description": "Dependency-free Laravel static analysis scanner with auto-fix, baseline, and SARIF output.",
     "type": "library",
-    "license": "Proprietary",
+    "license": "proprietary",
     "require": {
         "php": "^8.1"
     },
