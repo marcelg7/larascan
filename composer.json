@@ -1,8 +1,27 @@
 {
     "name": "mjgapp/larascan",
-    "description": "Dependency-free Laravel static analysis scanner with auto-fix, baseline, and SARIF output.",
+    "description": "Dependency-free Laravel static analysis scanner with auto-fix, baseline, and SARIF output. Composer + Claude Code skill.",
     "type": "library",
     "license": "proprietary",
+    "keywords": [
+        "laravel",
+        "static-analysis",
+        "security",
+        "audit",
+        "scanner",
+        "linter",
+        "code-quality",
+        "sarif",
+        "claude-code",
+        "ai",
+        "php",
+        "n-plus-one"
+    ],
+    "homepage": "https://mjgapp.com/products/larascan",
+    "support": {
+        "issues": "https://github.com/marcelg7/larascan/issues",
+        "source": "https://github.com/marcelg7/larascan"
+    },
     "require": {
         "php": "^8.1"
     },
