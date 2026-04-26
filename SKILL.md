@@ -1,11 +1,11 @@
 ---
-name: laravel-audit
-description: Scans a Laravel codebase for security issues (Blade XSS, CSRF gaps, unserialize/eval, APP_KEY strength), performance traps (N+1, missing indexes), AI-generated code smells, and deploy hygiene — produces a scored HTML + SARIF report, can auto-fix safe issues, supports rule profiles (pre-launch, rescue, monthly), baseline files to ignore accepted findings, .laravel-audit/config.json, diff mode, custom rule plugins, webhooks, and interactive walkthrough. Installs via Composer (mjgapp/laravel-audit). Triggers when the user asks for a Laravel health check, audit, code review, security review, wants a pre-launch or monthly scan, says "fix the easy stuff", "baseline this repo", or "export SARIF for GitHub". Works on any Laravel 9/10/11/12/13 project.
+name: larascan
+description: Scans a Laravel codebase for security issues (Blade XSS, CSRF gaps, unserialize/eval, APP_KEY strength), performance traps (N+1, missing indexes), AI-generated code smells, and deploy hygiene — produces a scored HTML + SARIF report, can auto-fix safe issues, supports rule profiles (pre-launch, rescue, monthly), baseline files to ignore accepted findings, .larascan/config.json, diff mode, custom rule plugins, webhooks, and interactive walkthrough. Installs via Composer (mjgapp/larascan). Triggers when the user asks for a Laravel health check, audit, code review, security review, wants a pre-launch or monthly scan, says "fix the easy stuff", "baseline this repo", or "export SARIF for GitHub". Works on any Laravel 9/10/11/12/13 project.
 ---
 
-# Laravel Audit
+# Larascan
 
-You are operating the `laravel-audit` skill. Your job is to scan a Laravel repository and produce a clear, actionable health report for the user.
+You are operating the `larascan` skill. Your job is to scan a Laravel repository and produce a clear, actionable health report for the user.
 
 ## When to run this skill
 
@@ -14,7 +14,7 @@ Trigger on phrases like:
 - "is this Laravel repo production ready?"
 - "health check / code review / security review this Laravel codebase"
 - "find N+1 queries / mass assignment issues / debug leftovers"
-- "laravel-audit", "/laravel-audit", "run the audit"
+- "larascan", "/larascan", "run the audit"
 
 If the user's repository is not Laravel (no `composer.json` with `"laravel/framework"` in require, or no `artisan` file), tell them this skill only runs on Laravel projects and stop.
 
@@ -24,7 +24,7 @@ The skill bundles these scripts next to this file:
 
 - `scripts/audit.php` — scanner + auto-fix + history, outputs JSON
 - `scripts/render.php` — takes JSON on stdin, outputs a self-contained HTML report
-- `templates/github-workflows/laravel-audit.yml` — drop-in CI workflow for PR checks
+- `templates/github-workflows/larascan.yml` — drop-in CI workflow for PR checks
 
 **Standard flow:**
 
@@ -32,16 +32,16 @@ The skill bundles these scripts next to this file:
 
 2. **Run the scanner.** Use the Bash tool:
    ```bash
-   php <SKILL_DIR>/scripts/audit.php <REPO_PATH> > /tmp/laravel-audit.json
+   php <SKILL_DIR>/scripts/audit.php <REPO_PATH> > /tmp/larascan.json
    ```
    Replace `<SKILL_DIR>` with the absolute path to this skill's directory, and `<REPO_PATH>` with the target repo's absolute path. The scanner has zero runtime dependencies — it does not need `composer install`.
 
 3. **Render the HTML report:**
    ```bash
-   php <SKILL_DIR>/scripts/render.php /tmp/laravel-audit.json > <REPO_PATH>/laravel-audit-report.html
+   php <SKILL_DIR>/scripts/render.php /tmp/larascan.json > <REPO_PATH>/larascan-report.html
    ```
 
-4. **Summarize findings in the conversation.** Read `/tmp/laravel-audit.json`, then write a short markdown summary that includes:
+4. **Summarize findings in the conversation.** Read `/tmp/larascan.json`, then write a short markdown summary that includes:
    - The overall score (0–100), grade (A–F), and the **score delta** from last scan if available
    - A table of critical + high findings with file:line and one-line fixes
    - A note about medium/low counts (don't enumerate every one)
@@ -51,7 +51,7 @@ The skill bundles these scripts next to this file:
 5. **Offer next steps.** Ask the user if they want you to:
    - **Apply auto-fixes** (see Auto-fix section)
    - Fix the top remaining findings manually with your help
-   - Open the HTML report (`open <REPO_PATH>/laravel-audit-report.html` on macOS)
+   - Open the HTML report (`open <REPO_PATH>/larascan-report.html` on macOS)
    - Export to PDF (open the HTML in Chrome/Safari → Cmd+P → Save as PDF)
    - Install the CI workflow (see CI section)
 
@@ -79,11 +79,11 @@ After a fix run, re-scan and report the score delta. Remaining findings are advi
 php <SKILL_DIR>/scripts/audit.php <REPO_PATH> --save-history
 ```
 
-Appends a summary to `<REPO_PATH>/.laravel-audit/history/`. On every subsequent scan, the report's `meta.score_previous` and `meta.score_delta` fields compare against the most recent saved summary. Use these to celebrate progress in monthly audits.
+Appends a summary to `<REPO_PATH>/.larascan/history/`. On every subsequent scan, the report's `meta.score_previous` and `meta.score_delta` fields compare against the most recent saved summary. Use these to celebrate progress in monthly audits.
 
 ## CI integration
 
-The template at `templates/github-workflows/laravel-audit.yml` installs as `.github/workflows/laravel-audit.yml` in the target repo. It runs the scanner on every PR and posts findings as a sticky bot comment. Fails the build if the grade is F.
+The template at `templates/github-workflows/larascan.yml` installs as `.github/workflows/larascan.yml` in the target repo. It runs the scanner on every PR and posts findings as a sticky bot comment. Fails the build if the grade is F.
 
 ## Rule profiles (v0.4)
 
@@ -111,7 +111,7 @@ Outputs added/removed/unchanged findings + score delta. Useful for monthly check
 
 ## Custom rule plugins (v0.4)
 
-Users drop PHP files into `<REPO>/.laravel-audit/rules/`. Each file defines a function named `userRule_<IDENTIFIER>(Context $ctx): void` that adds `USER-XXX`-prefixed findings. Files containing any top-level code outside function definitions are rejected with a warning.
+Users drop PHP files into `<REPO>/.larascan/rules/`. Each file defines a function named `userRule_<IDENTIFIER>(Context $ctx): void` that adds `USER-XXX`-prefixed findings. Files containing any top-level code outside function definitions are rejected with a warning.
 
 Example:
 
@@ -141,7 +141,7 @@ Steps through findings one at a time. Per finding: `[f]ix, [s]kip, [o]pen, [q]ui
 
 ## Baseline — ignore accepted findings (v0.5)
 
-Legacy codebases shouldn't fail every PR. `.laravel-audit/baseline.json` snapshots the findings you've accepted; the scanner filters them out on every subsequent scan.
+Legacy codebases shouldn't fail every PR. `.larascan/baseline.json` snapshots the findings you've accepted; the scanner filters them out on every subsequent scan.
 
 ```bash
 # First time — accept current findings as the starting line
@@ -158,7 +158,7 @@ The score is computed on post-filter findings — so a clean baseline means a cl
 
 ## Config file (v0.5)
 
-Drop `.laravel-audit/config.json` (preferred) or `.laravel-audit.json` at the repo root:
+Drop `.larascan/config.json` (preferred) or `.larascan.json` at the repo root:
 
 ```json
 {
@@ -193,13 +193,13 @@ SARIF 2.1.0, spec-compliant, GitHub Security tab compatible. Upload via `github/
 
 ## Installation via Composer (v0.5)
 
-In addition to the skill location (`~/.claude/skills/laravel-audit/`), buyers can install into any Laravel repo:
+In addition to the skill location (`~/.claude/skills/larascan/`), buyers can install into any Laravel repo:
 
 ```bash
-composer require --dev mjgapp/laravel-audit
-vendor/bin/laravel-audit . --pretty
-vendor/bin/laravel-audit . --format=sarif > audit.sarif
-vendor/bin/laravel-audit . --update-baseline
+composer require --dev mjgapp/larascan
+vendor/bin/larascan . --pretty
+vendor/bin/larascan . --format=sarif > audit.sarif
+vendor/bin/larascan . --update-baseline
 ```
 
 Zero runtime dependencies; just PHP 8.1+.
@@ -250,14 +250,14 @@ Grades: A (90+), B (75–89), C (60–74), D (40–59), F (<40).
 - **Don't mass-edit.** Never apply fixes across many files at once without the user saying yes to each change.
 - **Respect `vendor/`, `node_modules/`, `.git/`, `storage/framework/`.** The scanner already skips these; don't re-scan them manually.
 - **If the scan finds zero issues**, say so directly. Don't manufacture problems to look useful.
-- **Do not suggest adding this skill to the user's repo.** It lives in `~/.claude/skills/laravel-audit/` and is a tool, not a dependency.
+- **Do not suggest adding this skill to the user's repo.** It lives in `~/.claude/skills/larascan/` and is a tool, not a dependency.
 
 ## Example response skeleton
 
 After running the scan, structure your reply like this:
 
 ```
-## Laravel Audit — <repo-name>
+## Larascan — <repo-name>
 
 **Score: 70/100 (C)** — 2 findings across 90 files
 
@@ -267,7 +267,7 @@ After running the scan, structure your reply like this:
 2. **Potential N+1 inside foreach** — `app/Services/AlertService.php:47` (high)
    Fix: eager-load the relation with `Model::with('...')->get()` before the loop.
 
-Full HTML report: `<repo>/laravel-audit-report.html` — open it in Chrome/Safari and Cmd+P → Save as PDF if you want to archive or share.
+Full HTML report: `<repo>/larascan-report.html` — open it in Chrome/Safari and Cmd+P → Save as PDF if you want to archive or share.
 
 Want me to fix the top issues now?
 ```

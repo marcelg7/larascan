@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-// laravel-audit v0.5.4 — dependency-free scanner with auto-fix, trend tracking, CI support
+// larascan v0.5.4 — dependency-free scanner with auto-fix, trend tracking, CI support
 // Usage:
 //   php audit.php <repo-path> [--pretty]               scan, JSON report to stdout
 //   php audit.php <repo-path> --fix [--dry-run]        scan + apply safe fixes
-//   php audit.php <repo-path> --save-history           scan + append to .laravel-audit/history
+//   php audit.php <repo-path> --save-history           scan + append to .larascan/history
 //   php audit.php <repo-path> --profile=pre-launch     use a stricter/tuned rule profile
 //   php audit.php <repo-path> --interactive            step through findings (TTY required)
 //   php audit.php <repo-path> --webhook=<URL>          POST summary to Slack/Discord/generic webhook
-//   php audit.php <repo-path> --update-baseline        write current findings to .laravel-audit/baseline.json
+//   php audit.php <repo-path> --update-baseline        write current findings to .larascan/baseline.json
 //   php audit.php <repo-path> --ignore-baseline        scan without filtering baselined findings
 //   php audit.php <repo-path> --format=sarif           emit SARIF 2.1.0 instead of JSON
 
-const LARAVEL_AUDIT_VERSION = '0.5.4';
+const LARASCAN_VERSION = '0.5.4';
 
 const SEVERITY_CRIT = 'critical';
 const SEVERITY_HIGH = 'high';
@@ -744,7 +744,7 @@ function ruleBladeUnescaped(Context $ctx): void
     $safeMethodSuffixMap = array_flip($safeMethodSuffixes);
 
     // User-extensible safe-helpers list (v0.5.2) — configured via
-    // `.laravel-audit/config.json` → "blade_safe_helpers": ["markdown_to_html", ...].
+    // `.larascan/config.json` → "blade_safe_helpers": ["markdown_to_html", ...].
     // Each entry is a bare function name; treated the same as the built-in list.
     $userHelpers = [];
     if (isset($ctx->config['blade_safe_helpers']) && is_array($ctx->config['blade_safe_helpers'])) {
@@ -780,7 +780,7 @@ function ruleBladeUnescaped(Context $ctx): void
             // <script>...</script> block. The XSS class BLADE-001 targets is HTML injection;
             // json_encode inside <script> is a separate concern (</script> break-out) that
             // Laravel's json_encode defaults (JSON_HEX_TAG via @json) mitigate. Users who want
-            // tighter scanning of JS-embedded data can add custom rules in .laravel-audit/rules/.
+            // tighter scanning of JS-embedded data can add custom rules in .larascan/rules/.
             // Use strripos so we find the *most recent* <script / </script> before $offset.
             $before = substr($src, 0, $offset);
             $lastScriptOpen  = strripos($before, '<script');
@@ -1187,7 +1187,7 @@ function gitIsDirty(string $root): bool
     // would immediately look "dirty" and abort the next --fix.
     $lines = array_filter(
         explode("\n", trim($out)),
-        fn($l) => $l !== '' && !str_contains($l, '.laravel-audit/')
+        fn($l) => $l !== '' && !str_contains($l, '.larascan/')
     );
     return !empty($lines);
 }
@@ -1287,7 +1287,7 @@ function grade(int $score): string
 
 function loadHistory(string $root): ?array
 {
-    $dir = $root . '/.laravel-audit/history';
+    $dir = $root . '/.larascan/history';
     if (!is_dir($dir)) return null;
     $files = glob($dir . '/*.json') ?: [];
     if (empty($files)) return null;
@@ -1298,11 +1298,11 @@ function loadHistory(string $root): ?array
 
 function saveHistory(string $root, array $report): string
 {
-    $dir = $root . '/.laravel-audit/history';
+    $dir = $root . '/.larascan/history';
     if (!is_dir($dir)) @mkdir($dir, 0755, true);
     $summary = [
         'scanned_at'    => $report['meta']['scanned_at'] ?? date('c'),
-        'scanner'       => $report['meta']['scanner'] ?? 'laravel-audit',
+        'scanner'       => $report['meta']['scanner'] ?? 'larascan',
         'score'         => $report['meta']['score'] ?? null,
         'grade'         => $report['meta']['grade'] ?? null,
         'finding_count' => $report['meta']['finding_count'] ?? 0,
@@ -1343,7 +1343,7 @@ function resolveProfile(?string $name): array
 }
 
 /**
- * Load user-defined rule plugins from <repo>/.laravel-audit/rules/*.php.
+ * Load user-defined rule plugins from <repo>/.larascan/rules/*.php.
  *
  * Safety: each file must start with <?php and contain only function definitions
  * (no top-level statements). Anything else is skipped with a warning.
@@ -1352,7 +1352,7 @@ function resolveProfile(?string $name): array
  */
 function loadUserRules(string $root): array
 {
-    $dir = $root . '/.laravel-audit/rules';
+    $dir = $root . '/.larascan/rules';
     if (!is_dir($dir)) return [];
 
     $loaded = [];
@@ -1544,7 +1544,7 @@ function buildSlackPayload(array $report): array
     }
     $topText = $lines ? implode("\n", $lines) : "_No findings_";
 
-    $text = "laravel-audit: score *{$score}* (grade {$grade}) — {$count} finding(s) on profile `{$profile}`";
+    $text = "larascan: score *{$score}* (grade {$grade}) — {$count} finding(s) on profile `{$profile}`";
 
     return [
         'text'   => $text,
@@ -1573,7 +1573,7 @@ function buildDiscordPayload(array $report): array
     }
 
     return [
-        'content' => "**laravel-audit:** score **{$score}** (grade {$grade}) — {$count} finding(s) [profile: `{$profile}`]",
+        'content' => "**larascan:** score **{$score}** (grade {$grade}) — {$count} finding(s) [profile: `{$profile}`]",
         'embeds'  => [[
             'title'  => 'Top findings',
             'color'  => $score >= 75 ? 0x2ECC71 : ($score >= 40 ? 0xF1C40F : 0xE74C3C),
@@ -1586,8 +1586,8 @@ function buildDiscordPayload(array $report): array
 
 /**
  * Load the repo-level config file if present. Checks:
- *   1. <repo>/.laravel-audit/config.json  (preferred)
- *   2. <repo>/.laravel-audit.json          (fallback)
+ *   1. <repo>/.larascan/config.json  (preferred)
+ *   2. <repo>/.larascan.json          (fallback)
  *
  * Returns an associative array with any of: profile, exclude_rules,
  * exclude_paths, webhook.url, webhook.type, brand.*. Missing file → [].
@@ -1596,8 +1596,8 @@ function buildDiscordPayload(array $report): array
 function loadRepoConfig(string $root): array
 {
     $candidates = [
-        $root . '/.laravel-audit/config.json',
-        $root . '/.laravel-audit.json',
+        $root . '/.larascan/config.json',
+        $root . '/.larascan.json',
     ];
     foreach ($candidates as $path) {
         if (!is_file($path)) continue;
@@ -1634,7 +1634,7 @@ function fingerprintFinding(string $ruleId, string $file, ?int $line, string $ti
  */
 function loadBaseline(string $root): array
 {
-    $path = $root . '/.laravel-audit/baseline.json';
+    $path = $root . '/.larascan/baseline.json';
     if (!is_file($path)) {
         return ['present' => false, 'path' => $path, 'entries' => [], 'generated_at' => null];
     }
@@ -1676,7 +1676,7 @@ function loadBaseline(string $root): array
  */
 function writeBaseline(string $root, array $findings, array $previousEntries = [], bool $prune = false): string
 {
-    $dir = $root . '/.laravel-audit';
+    $dir = $root . '/.larascan';
     if (!is_dir($dir)) @mkdir($dir, 0755, true);
     $path = $dir . '/baseline.json';
 
@@ -1718,7 +1718,7 @@ function writeBaseline(string $root, array $findings, array $previousEntries = [
 
     $doc = [
         'generated_at' => date('c'),
-        'generated_by' => 'laravel-audit v' . LARAVEL_AUDIT_VERSION,
+        'generated_by' => 'larascan v' . LARASCAN_VERSION,
         'entries'      => $entries,
     ];
     file_put_contents($path, json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
@@ -1773,10 +1773,10 @@ function applyConfigFilters(array $findings, array $excludeRules, array $exclude
 }
 
 /**
- * Convert the laravel-audit report to SARIF 2.1.0. Only rules that fired are
+ * Convert the larascan report to SARIF 2.1.0. Only rules that fired are
  * included in tool.driver.rules (keeps output compact on large repos).
  *
- * Severity map (laravel-audit → SARIF level):
+ * Severity map (larascan → SARIF level):
  *   critical → error  (breaks things now)
  *   high     → error  (breaks things soon)
  *   medium   → warning
@@ -1803,7 +1803,7 @@ function buildSarif(array $report): array
             'shortDescription'     => ['text' => $f['title'] ?? $rid],
             'fullDescription'      => ['text' => $f['detail'] ?? ($f['title'] ?? $rid)],
             'defaultConfiguration' => ['level' => sarifLevel($f['severity'] ?? 'medium')],
-            'helpUri'              => 'https://mjgapp.com/products/laravel-audit',
+            'helpUri'              => 'https://mjgapp.com/products/larascan',
         ];
     }
 
@@ -1832,9 +1832,9 @@ function buildSarif(array $report): array
         'runs'    => [[
             'tool' => [
                 'driver' => [
-                    'name'           => 'laravel-audit',
-                    'version'        => LARAVEL_AUDIT_VERSION,
-                    'informationUri' => 'https://mjgapp.com/products/laravel-audit',
+                    'name'           => 'larascan',
+                    'version'        => LARASCAN_VERSION,
+                    'informationUri' => 'https://mjgapp.com/products/larascan',
                     'rules'          => array_values($rulesMap),
                 ],
             ],
@@ -1949,11 +1949,11 @@ function isatty_stdin(): bool
 function main(array $argv): int
 {
     if (count($argv) < 2 || in_array('--help', $argv, true)) {
-        fwrite(STDERR, "laravel-audit v" . LARAVEL_AUDIT_VERSION . "\n");
+        fwrite(STDERR, "larascan v" . LARASCAN_VERSION . "\n");
         fwrite(STDERR, "Usage:\n");
         fwrite(STDERR, "  php audit.php <repo-path> [--pretty]                   scan, JSON to stdout\n");
         fwrite(STDERR, "  php audit.php <repo-path> --fix [--dry-run]            scan + apply safe fixes\n");
-        fwrite(STDERR, "  php audit.php <repo-path> --save-history               append summary to .laravel-audit/history/\n");
+        fwrite(STDERR, "  php audit.php <repo-path> --save-history               append summary to .larascan/history/\n");
         fwrite(STDERR, "  php audit.php <repo-path> --profile=<name>             use a named rule profile\n");
         fwrite(STDERR, "  php audit.php <repo-path> --interactive                step through findings in a TTY\n");
         fwrite(STDERR, "  php audit.php <repo-path> --webhook=<URL>              POST summary to a webhook\n");
@@ -1966,22 +1966,22 @@ function main(array $argv): int
         fwrite(STDERR, "                      skips gitignored local .env — set prod values on your deploy platform)\n");
         fwrite(STDERR, "  --dry-run           with --fix, show what would change without writing\n");
         fwrite(STDERR, "  --force             with --fix, bypass the dirty git check\n");
-        fwrite(STDERR, "  --save-history      append summary to .laravel-audit/history (for score-delta tracking)\n");
+        fwrite(STDERR, "  --save-history      append summary to .larascan/history (for score-delta tracking)\n");
         fwrite(STDERR, "  --profile=NAME      rule profile: default | pre-launch | rescue | monthly\n");
         fwrite(STDERR, "  --interactive       walk through findings one at a time (requires TTY)\n");
         fwrite(STDERR, "  --webhook=URL       POST scan summary to a webhook after scanning\n");
         fwrite(STDERR, "  --webhook-type=T    force webhook format: slack | discord | generic (auto-detect by default)\n");
-        fwrite(STDERR, "  --update-baseline   rescan and overwrite .laravel-audit/baseline.json with current findings\n");
+        fwrite(STDERR, "  --update-baseline   rescan and overwrite .larascan/baseline.json with current findings\n");
         fwrite(STDERR, "  --prune-baseline    with --update-baseline, drop previous entries whose fingerprints\n");
         fwrite(STDERR, "                      no longer match any current finding (no-op on its own)\n");
-        fwrite(STDERR, "  --ignore-baseline   do not filter findings that match .laravel-audit/baseline.json\n");
+        fwrite(STDERR, "  --ignore-baseline   do not filter findings that match .larascan/baseline.json\n");
         fwrite(STDERR, "  --format=NAME       output format: json (default) | sarif\n");
         fwrite(STDERR, "\nProfiles:\n");
         foreach (PROFILES as $pname => $pdata) {
             fwrite(STDERR, sprintf("  %-12s %s\n", $pname, $pdata['description'] ?? ''));
         }
-        fwrite(STDERR, "\nCustom rules: drop PHP files into <repo>/.laravel-audit/rules/ defining userRule_* functions.\n");
-        fwrite(STDERR, "Config file:  <repo>/.laravel-audit/config.json (or <repo>/.laravel-audit.json) — CLI flags override.\n");
+        fwrite(STDERR, "\nCustom rules: drop PHP files into <repo>/.larascan/rules/ defining userRule_* functions.\n");
+        fwrite(STDERR, "Config file:  <repo>/.larascan/config.json (or <repo>/.larascan.json) — CLI flags override.\n");
         fwrite(STDERR, "              Supported keys: profile, exclude_rules, exclude_paths, webhook, brand,\n");
         fwrite(STDERR, "              blade_safe_helpers (BLADE-001 extra allowlist, e.g. [\"markdown_to_html\"]).\n");
         return 1;
@@ -2160,7 +2160,7 @@ function main(array $argv): int
         echo json_encode([
             'meta' => [
                 'action'        => 'update-baseline',
-                'scanner'       => 'laravel-audit v' . LARAVEL_AUDIT_VERSION,
+                'scanner'       => 'larascan v' . LARASCAN_VERSION,
                 'baseline_path' => $relPath,
                 'entry_count'   => $totalWritten,
                 'pruned'        => $pruneBaseline ? $staleCount : 0,
@@ -2193,7 +2193,7 @@ function main(array $argv): int
     $meta = [
         'repo'            => $root,
         'scanned_at'      => date('c'),
-        'scanner'         => 'laravel-audit v' . LARAVEL_AUDIT_VERSION,
+        'scanner'         => 'larascan v' . LARASCAN_VERSION,
         'profile'         => $profile['name'],
         'stats'           => $ctx->stats,
         'rule_count'      => count($rules),

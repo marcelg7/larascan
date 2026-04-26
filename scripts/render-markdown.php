@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// laravel-audit — Markdown action-plan renderer
+// larascan — Markdown action-plan renderer
 // Reads a JSON report (from audit.php) on stdin or as argv[1], writes a
 // Claude-friendly markdown checklist to stdout.
 //
@@ -58,7 +58,7 @@ usort($findings, function ($a, $b) {
 $repoName = basename((string)($meta['repo'] ?? 'unknown'));
 $score = (int)($meta['score'] ?? 0);
 $grade = (string)($meta['grade'] ?? '?');
-$scanner = (string)($meta['scanner'] ?? 'laravel-audit');
+$scanner = (string)($meta['scanner'] ?? 'larascan');
 $scannedAt = (string)($meta['scanned_at'] ?? date('c'));
 $profile = (string)($meta['profile'] ?? 'default');
 
@@ -79,7 +79,7 @@ foreach ($findings as $f) {
 
 // ---------- Output ----------
 
-echo "# Laravel Audit — Action Plan\n\n";
+echo "# Larascan — Action Plan\n\n";
 echo "| | |\n|---|---|\n";
 echo "| **Repo** | `{$repoName}` |\n";
 echo "| **Scanner** | {$scanner} (profile: {$profile}) |\n";
@@ -100,12 +100,12 @@ echo "6. **Re-scan** when you've made changes to confirm findings are resolved:\
 echo "\n";
 echo "```bash\n";
 echo "# Re-scan and overwrite the plan\n";
-echo "php /Users/marcelg/Herd/brainstorm/laravel-audit/scripts/audit.php . > .laravel-audit/report-latest.json\n";
-echo "php /Users/marcelg/Herd/brainstorm/laravel-audit/scripts/render-markdown.php .laravel-audit/report-latest.json > .laravel-audit/ACTION-PLAN.md\n";
+echo "php /Users/marcelg/Herd/brainstorm/larascan/scripts/audit.php . > .larascan/report-latest.json\n";
+echo "php /Users/marcelg/Herd/brainstorm/larascan/scripts/render-markdown.php .larascan/report-latest.json > .larascan/ACTION-PLAN.md\n";
 echo "\n";
 echo "# Or apply safe fixes automatically (commit first — scanner aborts on dirty git)\n";
-echo "php /Users/marcelg/Herd/brainstorm/laravel-audit/scripts/audit.php . --fix --dry-run   # preview\n";
-echo "php /Users/marcelg/Herd/brainstorm/laravel-audit/scripts/audit.php . --fix              # apply\n";
+echo "php /Users/marcelg/Herd/brainstorm/larascan/scripts/audit.php . --fix --dry-run   # preview\n";
+echo "php /Users/marcelg/Herd/brainstorm/larascan/scripts/audit.php . --fix              # apply\n";
 echo "```\n";
 echo "\n";
 echo "7. If new findings appear after a re-scan, investigate them before checking anything else off.\n";
@@ -117,7 +117,7 @@ if (!empty($autoFixable)) {
     echo "## ⚡ Auto-fixable (run `--fix` to resolve all at once)\n\n";
     echo "```bash\n";
     echo "# First: commit or stash any uncommitted work (scanner aborts on dirty git)\n";
-    echo "php /Users/marcelg/Herd/brainstorm/laravel-audit/scripts/audit.php . --fix\n";
+    echo "php /Users/marcelg/Herd/brainstorm/larascan/scripts/audit.php . --fix\n";
     echo "```\n\n";
     foreach ($autoFixable as $f) {
         echo "- [ ] " . severityEmoji($f['severity']) . " **{$f['rule_id']} · " . strtoupper($f['severity']) . "** — {$f['title']}  \n";
@@ -176,7 +176,7 @@ if (empty($findings)) {
 // giving users a visible breadcrumb of what they've accepted and why.
 $baselineMeta = $meta['baseline'] ?? null;
 if (is_array($baselineMeta) && !empty($baselineMeta['present']) && !empty($meta['repo'])) {
-    $baselinePath = rtrim((string)$meta['repo'], '/') . '/.laravel-audit/baseline.json';
+    $baselinePath = rtrim((string)$meta['repo'], '/') . '/.larascan/baseline.json';
     if (is_file($baselinePath)) {
         $baselineRaw = @file_get_contents($baselinePath);
         $baselineDoc = is_string($baselineRaw) ? json_decode($baselineRaw, true) : null;
@@ -185,7 +185,7 @@ if (is_array($baselineMeta) && !empty($baselineMeta['present']) && !empty($meta[
             : [];
         if (!empty($baselineEntries)) {
             echo "## 🗂 Accepted (baselined)\n\n";
-            echo "These findings are tracked in `.laravel-audit/baseline.json` and suppressed from the active plan. Re-surface them with `--ignore-baseline`.\n\n";
+            echo "These findings are tracked in `.larascan/baseline.json` and suppressed from the active plan. Re-surface them with `--ignore-baseline`.\n\n";
             foreach ($baselineEntries as $e) {
                 if (!is_array($e)) continue;
                 $ruleId = (string)($e['rule_id'] ?? '?');
@@ -217,5 +217,5 @@ echo "| BLADE-* | Blade template (XSS, CSRF) |\n";
 echo "| PERF-* | Performance |\n";
 echo "| SLOP-* | AI-generated code smells |\n";
 echo "| DEPLOY-* | Deploy hygiene |\n";
-echo "| USER-* | Custom rule plugin from `.laravel-audit/rules/` |\n\n";
-echo "Full rule reference: https://mjgapp.com/products/laravel-audit\n";
+echo "| USER-* | Custom rule plugin from `.larascan/rules/` |\n\n";
+echo "Full rule reference: https://mjgapp.com/products/larascan\n";

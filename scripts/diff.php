@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// laravel-audit v0.4 — report diff tool
+// larascan v0.4 — report diff tool
 // Usage: php diff.php <old-report.json> <new-report.json> [--pretty]
 //
 // Emits a JSON object with `added`, `removed`, and `unchanged` arrays plus a
@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 function usage(): void
 {
-    fwrite(STDERR, "laravel-audit diff\n");
+    fwrite(STDERR, "larascan diff\n");
     fwrite(STDERR, "Usage: php diff.php <old-report.json> <new-report.json> [--pretty]\n");
 }
 
@@ -29,7 +29,7 @@ function loadReport(string $path): array
     }
     $data = json_decode($raw, true);
     if (!is_array($data) || !isset($data['findings']) || !is_array($data['findings'])) {
-        fwrite(STDERR, "Not a laravel-audit report: {$path}\n");
+        fwrite(STDERR, "Not a larascan report: {$path}\n");
         exit(1);
     }
     return $data;
